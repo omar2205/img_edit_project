@@ -197,10 +197,10 @@
   }
 
   canvas {
-    width: 100%;
     height: 400px;
     outline: 1px solid blue;
     aspect-ratio: 4/3;
+    display: block;
   }
 
   md-dialog {
