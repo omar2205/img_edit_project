@@ -10,11 +10,13 @@
   let dialog_open = false
   $: if (dialog_open) dialog.show()
 
+  let original_img_url = '/pre.png'
   let generated_img_url
   let err_msg
 
   let open_ai_input
   let prompt_input
+  let image_file_input
 
   onMount(initialize)
 
@@ -113,6 +115,31 @@
       dialog_open = true
     })
   }
+
+  function file_to_dataurl(file) {
+    return new Promise((res, rej) => {
+      if (!file) rej('No file')
+      const reader = new FileReader()
+    
+      reader.onload = (e) => {
+        const file_dataurl = e.target?.result
+        res(file_dataurl)
+      }
+
+      reader.onerror = (err) => rej(err)
+
+      reader.readAsDataURL(file)
+    })
+  }
+
+  async function onFileChange(e) {
+    const input = e.target
+    const file = input.files[0]
+    if (!file) return
+    
+    const image_data_url = await file_to_dataurl(file)
+    original_img_url = image_data_url
+  }
 </script>
 
 <div class="inputs">
@@ -125,7 +152,8 @@
   <md-filled-button on:click={sendImage}>Send</md-filled-button>
 </nav>
 
-<img id="image" src="/pre.png" alt="" />
+<input type="file" bind:this={image_file_input} on:change={onFileChange}>
+<img id="image" src={original_img_url} alt="" />
 <canvas id="canvas"></canvas>
 
 <md-dialog
@@ -148,6 +176,10 @@
     flex-direction: column;
     gap: 1rem;
     margin-bottom: 1rem;
+  }
+
+  input[type="file"] {
+    margin: 1rem;
   }
 
   nav {
